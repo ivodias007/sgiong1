@@ -1,0 +1,118 @@
+{% extends 'base.html' %}
+{% block titulo %}{{ 'Editar' if ong else 'Nova' }} ONG - SGIONGs{% endblock %}
+
+{% block conteudo %}
+<h4 class="mb-3">{{ 'Editar organização' if ong else 'Registar nova organização' }}</h4>
+
+<form method="post" class="card card-body shadow-sm">
+    <div class="mb-3">
+        <label class="form-label">Nome da organização *</label>
+        <input type="text" name="nome" class="form-control" required
+               value="{{ ong.nome if ong else '' }}">
+    </div>
+
+    <div class="row">
+        <div class="col-md-3 mb-3">
+            <label class="form-label">Província</label>
+            <select name="provincia" class="form-select">
+                <option value="">-- Selecionar --</option>
+                {% for p in provincias %}
+                <option value="{{ p }}" {% if ong and ong.provincia == p %}selected{% endif %}>{{ p }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3 mb-3">
+            <label class="form-label">Natureza</label>
+            <select name="natureza" class="form-select">
+                <option value="">-- Selecionar --</option>
+                {% for valor in ['ONG', 'OSC', 'Fundação'] %}
+                <option value="{{ valor }}" {% if ong and ong.natureza == valor %}selected{% endif %}>{{ valor }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3 mb-3">
+            <label class="form-label">Origem</label>
+            <select name="origem" class="form-select">
+                <option value="">-- Selecionar --</option>
+                {% for valor in ['Nacional', 'Estrangeira', 'Nacional e Estrangeira'] %}
+                <option value="{{ valor }}" {% if ong and ong.origem == valor %}selected{% endif %}>{{ valor }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3 mb-3">
+            <label class="form-label">Estado</label>
+            <select name="estado" class="form-select">
+                {% for valor in ['Ativo', 'Inativo', 'Suspenso'] %}
+                <option value="{{ valor }}" {% if ong and ong.estado == valor or (not ong and valor == 'Ativo') %}selected{% endif %}>{{ valor }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Área/s Temática/s</label>
+        <textarea name="area_intervencao" class="form-control" rows="2">{{ ong.area_intervencao if ong else '' }}</textarea>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Programas</label>
+            <textarea name="programas" class="form-control" rows="2">{{ ong.programas if ong else '' }}</textarea>
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Projectos em Curso</label>
+            <textarea name="projetos_em_curso" class="form-control" rows="2">{{ ong.projetos_em_curso if ong else '' }}</textarea>
+        </div>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Distrito/Município</label>
+        <input type="text" name="distritos_texto" class="form-control"
+               placeholder="Ex: Chókwè, Guijá e Chongoene"
+               value="{{ ong.distritos_texto if ong else '' }}">
+        <div class="form-text">Separar por vírgula. Os distritos são reconhecidos automaticamente para filtragem.</div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Perfil do Grupo Alvo</label>
+            <input type="text" name="perfil_grupo_alvo" class="form-control" value="{{ ong.perfil_grupo_alvo if ong else '' }}">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Fonte de Financiamento</label>
+            <input type="text" name="fonte_financiamento" class="form-control" value="{{ ong.fonte_financiamento if ong else '' }}">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Ponto Focal</label>
+            <input type="text" name="pessoa_contacto" class="form-control" value="{{ ong.pessoa_contacto if ong else '' }}">
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label">Telefone</label>
+            <input type="text" name="telefone" class="form-control" value="{{ ong.telefone if ong else '' }}">
+        </div>
+        <div class="col-md-4 mb-3">
+            <label class="form-label">E-mail</label>
+            <input type="email" name="email" class="form-control" value="{{ ong.email if ong else '' }}">
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Coordenada UTM — X</label>
+            <input type="text" name="coordenada_x" class="form-control" value="{{ ong.coordenada_x if ong else '' }}">
+        </div>
+        <div class="col-md-6 mb-3">
+            <label class="form-label">Coordenada UTM — Y</label>
+            <input type="text" name="coordenada_y" class="form-control" value="{{ ong.coordenada_y if ong else '' }}">
+        </div>
+    </div>
+
+    <div>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-save"></i> Guardar</button>
+        <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Cancelar</a>
+    </div>
+</form>
+{% endblock %}

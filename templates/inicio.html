@@ -1,0 +1,126 @@
+{% extends 'base.html' %}
+{% block titulo %}SGIONGs - Início{% endblock %}
+
+{% block conteudo %}
+<div class="hero-sigeong rounded-4 p-5 mb-4 text-white">
+    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+        <div>
+            <p class="mb-1 text-white-50" id="data-inicio"></p>
+            <h1 class="fw-bold mb-1"><i class="bi bi-diagram-3"></i> Bem-vindo ao Sistema de Gestão de ONGs</h1>
+            <p class="lead mb-4">SGIONGs — Organizações da Sociedade Civil em Moçambique</p>
+        </div>
+        <div class="text-end">
+            <div class="fs-3 fw-bold" id="relogio-inicio">--:--:--</div>
+        </div>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+        <a href="{{ url_for('index') }}" class="btn btn-light btn-lg">
+            <i class="bi bi-list-ul"></i> Ver Listagem
+        </a>
+        <a href="{{ url_for('dashboard') }}" class="btn btn-outline-light btn-lg">
+            <i class="bi bi-bar-chart-line"></i> Abrir Dashboard
+        </a>
+        <a href="{{ url_for('novo') }}" class="btn btn-outline-light btn-lg">
+            <i class="bi bi-plus-lg"></i> Registar ONG
+        </a>
+    </div>
+</div>
+
+<script>
+const DIAS = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
+const MESES = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho',
+               'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+function atualizarRelogio() {
+    const agora = new Date();
+    const dois = (n) => String(n).padStart(2, '0');
+
+    document.getElementById('relogio-inicio').textContent =
+        `${dois(agora.getHours())}:${dois(agora.getMinutes())}:${dois(agora.getSeconds())}`;
+
+    document.getElementById('data-inicio').textContent =
+        `${DIAS[agora.getDay()]}, ${agora.getDate()} de ${MESES[agora.getMonth()]} de ${agora.getFullYear()}`;
+}
+
+atualizarRelogio();
+setInterval(atualizarRelogio, 1000);
+</script>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm border-0">
+            <div class="card-body">
+                <div class="fs-2 fw-bold text-dark">{{ total_ongs }}</div>
+                <div class="text-muted small">Organizações registadas</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm border-0">
+            <div class="card-body">
+                <div class="fs-2 fw-bold text-dark">{{ total_provincias }}</div>
+                <div class="text-muted small">Províncias com dados</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm border-0">
+            <div class="card-body">
+                <div class="fs-2 fw-bold text-dark">{{ total_distritos }}</div>
+                <div class="text-muted small">Distritos/Municípios cobertos</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm border-0">
+            <div class="card-body">
+                <div class="fs-2 fw-bold text-dark">{{ total_areas }}</div>
+                <div class="text-muted small">Áreas temáticas distintas</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-3">
+    <div class="col-md-7">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="card-title mb-3">Organizações por Província</h6>
+                {% for p in por_provincia %}
+                {% set percentagem = (p.c / total_ongs * 100) if total_ongs else 0 %}
+                <div class="mb-2">
+                    <div class="d-flex justify-content-between small mb-1">
+                        <a href="{{ url_for('index', provincia=p.provincia) }}" class="text-decoration-none text-dark fw-semibold">{{ p.provincia }}</a>
+                        <span class="text-muted">{{ p.c }}</span>
+                    </div>
+                    <div class="progress" style="height: 8px;">
+                        <div class="progress-bar bg-dark" style="width: {{ percentagem }}%;"></div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-md-5">
+        <div class="card shadow-sm h-100">
+            <div class="card-body">
+                <h6 class="card-title mb-3">Últimas organizações registadas</h6>
+                {% if recentes %}
+                <ul class="list-unstyled mb-0">
+                    {% for ong in recentes %}
+                    <li class="d-flex justify-content-between align-items-center border-bottom py-2">
+                        <div>
+                            <a href="{{ url_for('detalhe', ong_id=ong.id) }}" class="text-decoration-none fw-semibold">{{ ong.nome }}</a>
+                            <div class="text-muted small">{{ ong.provincia or '—' }}{% if ong.natureza %} · {{ ong.natureza }}{% endif %}</div>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                <p class="text-muted small mb-0">Ainda não há organizações registadas.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

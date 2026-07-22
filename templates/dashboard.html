@@ -1,0 +1,251 @@
+{% extends 'base.html' %}
+{% block titulo %}Dashboard - SGIONGs{% endblock %}
+
+{% block conteudo %}
+<div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h4 class="mb-0">
+        Dashboard
+        {% if provincia_filtro %}— {{ provincia_filtro }}{% else %}— Resumo Nacional{% endif %}
+        {% if nome_distrito_filtro %} / {{ nome_distrito_filtro }}{% endif %}
+    </h4>
+    <form method="get" class="d-flex gap-2">
+        <select name="provincia" class="form-select form-select-sm"
+                onchange="this.form.distrito_id.value=''; this.form.submit()">
+            <option value="">Todas as províncias</option>
+            {% for p in provincias %}
+            <option value="{{ p }}" {% if provincia_filtro == p %}selected{% endif %}>{{ p }}</option>
+            {% endfor %}
+        </select>
+        <select name="distrito_id" class="form-select form-select-sm" onchange="this.form.submit()"
+                {% if not provincia_filtro %}disabled title="Escolhe primeiro uma província"{% endif %}>
+            <option value="">{{ 'Todos os distritos' if provincia_filtro else 'Escolhe uma província' }}</option>
+            {% for d in distritos_filtro %}
+            <option value="{{ d.id }}" {% if distrito_id_filtro == d.id|string %}selected{% endif %}>{{ d.nome }}</option>
+            {% endfor %}
+        </select>
+        {% if provincia_filtro or distrito_id_filtro %}
+        <a href="{{ url_for('dashboard') }}" class="btn btn-sm btn-outline-secondary">Limpar</a>
+        {% endif %}
+    </form>
+</div>
+
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <div class="fs-2 fw-bold text-dark">{{ total_ongs }}</div>
+                <div class="text-muted small">Organizações registadas</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <div class="fs-2 fw-bold text-dark">{{ total_provincias }}</div>
+                <div class="text-muted small">Províncias com dados</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <div class="fs-2 fw-bold text-dark">{{ total_distritos }}</div>
+                <div class="text-muted small">Distritos/Municípios cobertos</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <div class="fs-2 fw-bold text-dark">{{ total_areas }}</div>
+                <div class="text-muted small">Áreas temáticas distintas</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<ul class="nav nav-tabs mb-3" role="tablist">
+    <li class="nav-item" role="presentation">
+        <button class="nav-link active" data-bs-toggle="tab" data-bs-target="#aba-resumo" type="button">
+            <i class="bi bi-map"></i> Resumo Nacional
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#aba-perfil" type="button">
+            <i class="bi bi-pie-chart"></i> Perfil das ONGs
+        </button>
+    </li>
+    <li class="nav-item" role="presentation">
+        <button class="nav-link" data-bs-toggle="tab" data-bs-target="#aba-atividades" type="button">
+            <i class="bi bi-list-check"></i> Atividades por Área
+        </button>
+    </li>
+</ul>
+
+<div class="tab-content">
+
+    <div class="tab-pane fade show active" id="aba-resumo" role="tabpanel">
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">ONGs por Província</h6>
+                        <canvas id="graficoProvincia" height="260"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">ONGs por Área Temática</h6>
+                        <canvas id="graficoArea" height="260"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="aba-perfil" role="tabpanel">
+        <div class="row g-3 mb-3">
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Origem</h6>
+                        <canvas id="graficoOrigem" height="240"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Natureza</h6>
+                        <canvas id="graficoNatureza" height="240"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100">
+                    <div class="card-body">
+                        <h6 class="card-title">Estado</h6>
+                        <canvas id="graficoEstado" height="240"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="tab-pane fade" id="aba-atividades" role="tabpanel">
+        <p class="text-muted small mb-3">
+            Atividades específicas extraídas do texto livre de cada ONG, agrupadas por área temática —
+            útil para ver as "ramificações" dentro de cada área (ex: dentro de Educação, quais as
+            atividades concretas mais comuns).
+        </p>
+        <div class="row g-3 mb-4">
+            {% for area, frases in ramificacoes.items() %}
+            <div class="col-md-4">
+                <div class="card shadow-sm h-100 sector-card">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <a href="{{ url_for('sector', nome_area=area) }}{{ ('?provincia=' + provincia_filtro) if provincia_filtro else '' }}"
+                               class="fw-bold text-decoration-none text-dark">
+                                <h6 class="card-title mb-0">
+                                    {{ area }}
+                                    <i class="bi bi-box-arrow-up-right ms-1 small"></i>
+                                </h6>
+                            </a>
+                            <span class="badge bg-dark">{{ total_ongs_por_area.get(area, 0) }} ONGs</span>
+                        </div>
+                        <ul class="list-unstyled small mb-0">
+                            {% for frase, contagem in frases %}
+                            <li class="d-flex justify-content-between border-bottom py-1">
+                                <span>{{ frase }}</span>
+                                <span class="badge bg-light text-dark border ms-2">{{ contagem }}</span>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                        <div class="mt-2">
+                            <a href="{{ url_for('sector', nome_area=area) }}{{ ('?provincia=' + provincia_filtro) if provincia_filtro else '' }}"
+                               class="btn btn-sm btn-outline-success w-100">
+                                <i class="bi bi-people"></i> Ver ONGs deste sector
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% else %}
+            <p class="text-muted">Sem dados suficientes para esta vista.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<script>
+const cores = ['#212529', '#495057', '#6c757d', '#adb5bd', '#0d6efd', '#6610f2',
+               '#198754', '#fd7e14', '#dc3545', '#20c997', '#0dcaf0', '#ffc107'];
+
+const graficos = [];
+
+graficos.push(new Chart(document.getElementById('graficoProvincia'), {
+    type: 'bar',
+    data: {
+        labels: {{ provincia_labels | tojson }},
+        datasets: [{ label: 'ONGs', data: {{ provincia_valores | tojson }}, backgroundColor: '#212529' }]
+    },
+    options: {
+        indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: { x: { ticks: { precision: 0 } } }
+    }
+}));
+
+graficos.push(new Chart(document.getElementById('graficoArea'), {
+    type: 'bar',
+    data: {
+        labels: {{ area_labels | tojson }},
+        datasets: [{ label: 'ONGs', data: {{ area_valores | tojson }}, backgroundColor: '#0d6efd' }]
+    },
+    options: {
+        indexAxis: 'y',
+        plugins: { legend: { display: false } },
+        scales: { x: { ticks: { precision: 0 } } }
+    }
+}));
+
+graficos.push(new Chart(document.getElementById('graficoOrigem'), {
+    type: 'doughnut',
+    data: {
+        labels: {{ origem_labels | tojson }},
+        datasets: [{ data: {{ origem_valores | tojson }}, backgroundColor: cores }]
+    },
+    options: { plugins: { legend: { position: 'bottom' } } }
+}));
+
+graficos.push(new Chart(document.getElementById('graficoNatureza'), {
+    type: 'doughnut',
+    data: {
+        labels: {{ natureza_labels | tojson }},
+        datasets: [{ data: {{ natureza_valores | tojson }}, backgroundColor: cores }]
+    },
+    options: { plugins: { legend: { position: 'bottom' } } }
+}));
+
+graficos.push(new Chart(document.getElementById('graficoEstado'), {
+    type: 'doughnut',
+    data: {
+        labels: {{ estado_labels | tojson }},
+        datasets: [{ data: {{ estado_valores | tojson }}, backgroundColor: ['#198754', '#ffc107', '#dc3545'] }]
+    },
+    options: { plugins: { legend: { position: 'bottom' } } }
+}));
+
+// Os graficos dentro de abas escondidas nascem com tamanho 0 — ao mudar de aba,
+// forcamos um resize para ficarem com o tamanho correto do contentor visivel.
+document.querySelectorAll('button[data-bs-toggle="tab"]').forEach(function (botao) {
+    botao.addEventListener('shown.bs.tab', function () {
+        graficos.forEach(function (g) { g.resize(); });
+    });
+});
+</script>
+{% endblock %}

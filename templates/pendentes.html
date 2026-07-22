@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+{% block titulo %}SGIONGs - Pendentes de Aprovação{% endblock %}
+
+{% block conteudo %}
+<h4 class="mb-1"><i class="bi bi-hourglass-split"></i> ONGs Pendentes de Aprovação</h4>
+<p class="text-muted small mb-4">
+    Registos criados por um Admin normal ficam aqui até o Super Admin aprovar ou rejeitar.
+    Só depois de aprovados passam a aparecer nas listagens públicas do site.
+</p>
+
+{% if not ongs %}
+<div class="alert alert-success">
+    <i class="bi bi-check-circle"></i> Não há nenhuma ONG pendente de momento.
+</div>
+{% else %}
+<div class="row">
+    {% for ong in ongs %}
+    <div class="col-md-6 mb-3">
+        <div class="card h-100 shadow-sm border-warning">
+            <div class="card-body">
+                <div class="d-flex justify-content-between align-items-start">
+                    <h6 class="card-title fw-bold mb-2">{{ ong.nome }}</h6>
+                    <span class="badge bg-warning text-dark">Pendente</span>
+                </div>
+
+                <p class="mb-2 small">
+                    {% if ong.natureza %}<span class="badge bg-info text-dark me-1">{{ ong.natureza }}</span>{% endif %}
+                    {% if ong.origem %}<span class="badge bg-secondary me-1">{{ ong.origem }}</span>{% endif %}
+                </p>
+
+                <div class="small mb-1">
+                    <i class="bi bi-flag"></i> <strong>Província:</strong>
+                    {{ ong.provincia or '—' }}
+                </div>
+                <div class="small mb-1">
+                    <i class="bi bi-signpost-split"></i> <strong>Distrito(s):</strong>
+                    {{ ong.distritos_texto or '—' }}
+                </div>
+                <div class="small mb-1">
+                    <i class="bi bi-diagram-3"></i> <strong>Área(s) Temática(s):</strong>
+                    {{ ong.area_intervencao or '—' }}
+                </div>
+                <div class="small mb-3">
+                    <i class="bi bi-person-lines-fill"></i> <strong>Contacto:</strong>
+                    {{ ong.pessoa_contacto or '—' }}
+                    {% if ong.telefone %} · {{ ong.telefone }}{% endif %}
+                    {% if ong.email %} · {{ ong.email }}{% endif %}
+                </div>
+
+                <div class="d-flex gap-2">
+                    <form method="post" action="{{ url_for('aprovar', ong_id=ong.id) }}" class="flex-fill">
+                        <button type="submit" class="btn btn-success btn-sm w-100">
+                            <i class="bi bi-check-lg"></i> Aprovar
+                        </button>
+                    </form>
+                    <button type="button" class="btn btn-outline-danger btn-sm flex-fill"
+                            data-bs-toggle="modal" data-bs-target="#modalRejeitar{{ ong.id }}">
+                        <i class="bi bi-x-lg"></i> Rejeitar
+                    </button>
+                    <a href="{{ url_for('detalhe', ong_id=ong.id) }}" class="btn btn-outline-secondary btn-sm">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal de rejeição com motivo -->
+    <div class="modal fade" id="modalRejeitar{{ ong.id }}" tabindex="-1">
+        <div class="modal-dialog">
+            <form method="post" action="{{ url_for('rejeitar', ong_id=ong.id) }}">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h6 class="modal-title">Rejeitar "{{ ong.nome }}"</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <label class="form-label small">Motivo da rejeição</label>
+                        <textarea name="motivo" class="form-control" rows="3"
+                                  placeholder="Ex: dados incompletos, província incorreta..."></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Cancelar</button>
+                        <button type="submit" class="btn btn-danger btn-sm">Confirmar Rejeição</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

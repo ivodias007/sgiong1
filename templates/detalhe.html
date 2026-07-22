@@ -1,0 +1,74 @@
+{% extends 'base.html' %}
+{% block titulo %}{{ ong.nome }} - SGIONGs{% endblock %}
+
+{% block conteudo %}
+<a href="{{ url_for('index') }}" class="btn btn-sm btn-outline-secondary mb-3">
+    <i class="bi bi-arrow-left"></i> Voltar à listagem
+</a>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-start">
+            <h4 class="card-title">{{ ong.nome }}</h4>
+            <div>
+                <a href="{{ url_for('editar', ong_id=ong.id) }}" class="btn btn-sm btn-outline-primary">
+                    <i class="bi bi-pencil"></i> Editar
+                </a>
+                <form action="{{ url_for('eliminar', ong_id=ong.id) }}" method="post" class="d-inline"
+                      onsubmit="return confirm('Tem certeza que deseja eliminar esta organização?');">
+                    <button type="submit" class="btn btn-sm btn-outline-danger">
+                        <i class="bi bi-trash"></i> Eliminar
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <p>
+            {% if ong.natureza %}<span class="badge bg-info text-dark">{{ ong.natureza }}</span>{% endif %}
+            {% if ong.origem %}<span class="badge bg-secondary">{{ ong.origem }}</span>{% endif %}
+            <span class="badge bg-{{ 'success' if ong.estado == 'Ativo' else 'warning' if ong.estado == 'Suspenso' else 'danger' }}">
+                {{ ong.estado }}
+            </span>
+        </p>
+
+        <table class="table table-sm">
+            <tr><th style="width:240px;">Província</th><td>{{ ong.provincia or '—' }}</td></tr>
+            <tr>
+                <th>Distrito/Município</th>
+                <td>
+                    {% if distritos %}
+                        {% for d in distritos %}<span class="badge bg-light text-dark border me-1">{{ d.nome }}</span>{% endfor %}
+                    {% endif %}
+                    <div class="text-muted small mt-1">{{ ong.distritos_texto or '—' }}</div>
+                </td>
+            </tr>
+            <tr>
+                <th>Área/s Temática/s</th>
+                <td>
+                    {% if areas %}
+                        {% for a in areas %}<span class="badge bg-light text-dark border me-1">{{ a.nome }}</span>{% endfor %}
+                    {% endif %}
+                    <div class="text-muted small mt-1">{{ ong.area_intervencao or '—' }}</div>
+                </td>
+            </tr>
+            <tr>
+                <th>Ramificações</th>
+                <td>
+                    {% if ramificacoes %}
+                        {% for r in ramificacoes %}<span class="badge bg-light text-dark border me-1">{{ r.nome }}</span>{% endfor %}
+                    {% else %}<span class="text-muted">—</span>{% endif %}
+                </td>
+            </tr>
+            <tr><th>Programas</th><td>{{ ong.programas or '—' }}</td></tr>
+            <tr><th>Projectos em Curso</th><td>{{ ong.projetos_em_curso or '—' }}</td></tr>
+            <tr><th>Fonte de Financiamento</th><td>{{ ong.fonte_financiamento or '—' }}</td></tr>
+            <tr><th>Perfil do Grupo Alvo</th><td>{{ ong.perfil_grupo_alvo or '—' }}</td></tr>
+            <tr><th>Ponto Focal</th><td>{{ ong.pessoa_contacto or '—' }}</td></tr>
+            <tr><th>Telefone</th><td>{{ ong.telefone or '—' }}</td></tr>
+            <tr><th>E-mail</th><td>{{ ong.email or '—' }}</td></tr>
+            <tr><th>Coordenada UTM — X</th><td>{{ ong.coordenada_x or '—' }}</td></tr>
+            <tr><th>Coordenada UTM — Y</th><td>{{ ong.coordenada_y or '—' }}</td></tr>
+        </table>
+    </div>
+</div>
+{% endblock %}

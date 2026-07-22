@@ -1,0 +1,253 @@
+/* =============================================
+   SGIONGs — Tema verde (Bandeira de Moçambique)
+   Layout com sidebar lateral colapsável
+   ============================================= */
+
+:root {
+    --verde: #00843D;
+    --verde-escuro: #00622D;
+    --verde-claro: #1FA463;
+    --sidebar-w: 240px;
+    --topbar-h: 56px;
+    --bg-pagina: #eef6f1;
+    --bg-sidebar: #00622D;
+    --texto-sidebar: rgba(255,255,255,0.85);
+    --texto-sidebar-ativo: #ffffff;
+    --transicao: 0.25s ease;
+}
+
+/* ---- Reset ---- */
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg-pagina); font-family: 'Segoe UI', sans-serif; overflow-x: hidden; }
+
+/* ===================== SIDEBAR ===================== */
+#sidebar {
+    position: fixed;
+    top: 0; left: 0;
+    width: var(--sidebar-w);
+    height: 100vh;
+    background: var(--bg-sidebar);
+    display: flex;
+    flex-direction: column;
+    z-index: 1050;
+    transition: transform var(--transicao);
+    overflow-y: auto;
+}
+
+#sidebar.fechada {
+    transform: translateX(calc(-1 * var(--sidebar-w)));
+}
+
+.sidebar-logo {
+    padding: 20px 20px 16px;
+    color: #fff;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    border-bottom: 1px solid rgba(255,255,255,0.15);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    line-height: 1.2;
+    min-height: var(--topbar-h);
+}
+
+.sidebar-logo span {
+    font-size: 0.7rem;
+    font-weight: 400;
+    opacity: 0.7;
+    display: block;
+}
+
+.sidebar-logo i {
+    font-size: 1.4rem;
+    flex-shrink: 0;
+}
+
+.sidebar-nav {
+    padding: 12px 0;
+    flex: 1;
+}
+
+.sidebar-link {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    color: var(--texto-sidebar);
+    text-decoration: none;
+    font-size: 0.92rem;
+    transition: background var(--transicao), color var(--transicao);
+    border-left: 3px solid transparent;
+}
+
+.sidebar-link:hover {
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+}
+
+.sidebar-link.active {
+    background: rgba(255,255,255,0.15);
+    color: var(--texto-sidebar-ativo);
+    border-left-color: #fff;
+    font-weight: 600;
+}
+
+.sidebar-link i {
+    font-size: 1.05rem;
+    width: 20px;
+    flex-shrink: 0;
+}
+
+.sidebar-link-logout {
+    color: rgba(255,180,180,0.85);
+}
+
+.sidebar-link-logout:hover {
+    color: #ffb4b4;
+}
+
+.sidebar-divider {
+    margin: 8px 20px;
+    border-top: 1px solid rgba(255,255,255,0.15);
+}
+
+.sidebar-footer {
+    padding: 12px 20px;
+    font-size: 0.68rem;
+    color: rgba(255,255,255,0.4);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    line-height: 1.4;
+}
+
+/* ===================== OVERLAY (mobile) ===================== */
+#sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 1040;
+}
+
+/* ===================== MAIN WRAPPER ===================== */
+#main-wrapper {
+    margin-left: var(--sidebar-w);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    transition: margin-left var(--transicao);
+}
+
+#main-wrapper.expandido {
+    margin-left: 0;
+}
+
+/* ===================== TOPBAR ===================== */
+#topbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    height: var(--topbar-h);
+    background: var(--verde-escuro);
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    gap: 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+#btn-sidebar {
+    background: none;
+    border: none;
+    color: #fff;
+    font-size: 1.6rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    line-height: 1;
+    flex-shrink: 0;
+    transition: background 0.15s;
+}
+
+#btn-sidebar:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+.topbar-titulo {
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    flex: 1;
+}
+
+.topbar-direita {
+    margin-left: auto;
+}
+
+.topbar-admin {
+    color: rgba(255,255,255,0.75);
+    font-size: 0.8rem;
+}
+
+/* ===================== CONTEÚDO ===================== */
+#main-content {
+    flex: 1;
+    padding: 28px 28px 20px;
+}
+
+#rodape {
+    padding: 14px 28px;
+    font-size: 0.72rem;
+    color: #8aa897;
+    border-top: 1px solid #d8e6dd;
+    background: #f6faf7;
+}
+
+/* ===================== CARDS E ELEMENTOS ===================== */
+.card-title { font-size: 1rem; }
+
+.btn-primary, .btn-success {
+    background-color: var(--verde);
+    border-color: var(--verde);
+}
+.btn-primary:hover, .btn-primary:focus,
+.btn-success:hover, .btn-success:focus {
+    background-color: var(--verde-escuro);
+    border-color: var(--verde-escuro);
+}
+.btn-outline-primary {
+    color: var(--verde);
+    border-color: var(--verde);
+}
+.btn-outline-primary:hover {
+    background-color: var(--verde);
+    border-color: var(--verde);
+}
+
+.nav-tabs .nav-link.active {
+    color: var(--verde-escuro);
+    border-color: #dee2e6 #dee2e6 #fff;
+    font-weight: 600;
+}
+
+.progress-bar.bg-dark {
+    background-color: var(--verde) !important;
+}
+
+/* ===================== HERO DA PÁGINA INICIAL ===================== */
+.hero-sigeong {
+    background: linear-gradient(135deg, var(--verde-escuro) 0%, var(--verde) 60%, #1FA463 100%);
+}
+
+#relogio-inicio {
+    font-variant-numeric: tabular-nums;
+}
+
+/* ===================== MOBILE ===================== */
+@media (max-width: 768px) {
+    #sidebar { transform: translateX(calc(-1 * var(--sidebar-w))); }
+    #sidebar.aberta { transform: translateX(0); }
+    #main-wrapper { margin-left: 0 !important; }
+    #main-content { padding: 16px; }
+}
